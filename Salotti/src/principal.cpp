@@ -29,7 +29,7 @@ void metodoSalottiOptimizado()
 	// Carga de contorno
 
 	//char nombreFicheroContorno[100];
-	char nombreFicheroContorno[100] = "CONTORNOS/abre1Perez.txt";
+	char nombreFicheroContorno[100] = "contornos/prueba.txt";
 	//cout << "Introduzca el fichero de contorno:";
 	//cin >> nombreFicheroContorno;
 
@@ -44,7 +44,7 @@ void metodoSalottiOptimizado()
 	// Numero de puntos de la aproximacion
 
 	//int numPuntosAprox;
-	int numPuntosAprox = 25;
+	int numPuntosAprox = 4;
 	//cout << "Número de puntos de la aproximacion contando dos veces el inicial:";
 	//cin >> numPuntosAprox;
 

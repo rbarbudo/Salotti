@@ -150,7 +150,7 @@ void MetodoSalottiOptimizado::aplicar()
 			cerrada[minimo.getIndice()][minimo.getRango()] = true;
 			padreActual[minimo.getIndice()][minimo.getRango()] = minimo.getPadre();
 			costeActual[minimo.getIndice()][minimo.getRango()] = minimo.getCoste();
-			//cout << "añado a cerrada: " <<  minimo.getIndice() << ", " << minimo.getCoste() << ", " << minimo.getRango() << ", " << minimo.getPadre() << endl;
+			cout << "añado a cerrada: " <<  minimo.getIndice() << ", " << minimo.getCoste() << ", " << minimo.getRango() << ", " << minimo.getPadre() << endl;
 
 			/*
 			 * 3) If n is the last point of the curve and the global error
@@ -182,7 +182,7 @@ void MetodoSalottiOptimizado::aplicar()
 
 					double costeAdicional = sumaErrores(minimo.getIndice(), i, suma_x, suma_y, suma_xx, suma_yy, suma_xy);
 					Nodo sucesor(contorno.puntoContorno(i), i, minimo.getRango()+1, minimo.getIndice(), minimo.getCoste()+costeAdicional);
-					//cout << "sucesor: " <<  sucesor.getIndice() << ", " << sucesor.getCoste() << ", " << sucesor.getRango() << ", " << sucesor.getPadre() << endl;
+					cout << "sucesor: " <<  sucesor.getIndice() << ", " << sucesor.getCoste() << ", " << sucesor.getRango() << ", " << sucesor.getPadre() << endl;
 					/**
 					 * 5) If it is not already in the Open list, set g(n')...,
 					 * set f(n')..., insert the new node in the Open list at the right
@@ -213,8 +213,8 @@ void MetodoSalottiOptimizado::aplicar()
 
 			}
 
-			//cout << "Lista abierta:" << endl;
-			//listaAbierta.imprimir();
+			cout << "Lista abierta:" << endl;
+			listaAbierta.imprimir();
 
 
 
