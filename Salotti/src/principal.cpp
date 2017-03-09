@@ -20,7 +20,7 @@ void metodoSalottiOptimizado();
 int main(int argc, char *argv[])
 {
 	metodoSalottiOptimizado();
-	cout << "termine metodoSalottiOptimizado" << endl;
+	cout << "termine metodo SalottiOptimizado" << endl;
 	return 0;
 }
 
@@ -29,7 +29,7 @@ void metodoSalottiOptimizado()
 	// Carga de contorno
 
 	//char nombreFicheroContorno[100];
-	char nombreFicheroContorno[100] = "contornos/abre1Perez.txt";
+	char nombreFicheroContorno[100] = "contornos/prueba.txt";
 	//cout << "Introduzca el fichero de contorno:";
 	//cin >> nombreFicheroContorno;
 
@@ -44,11 +44,9 @@ void metodoSalottiOptimizado()
 	// Numero de puntos de la aproximacion
 
 	//int numPuntosAprox;
-	int numPuntosAprox = 51;
+	int numPuntosAprox = 3;
 	//cout << "Número de puntos de la aproximacion contando dos veces el inicial:";
 	//cin >> numPuntosAprox;
-
-	numPuntosAprox--; //Numero de puntos sin duplicar el inicial
 
 	// Datos usados para controlar la ejecucion
 	vector <double> limitePoda;
@@ -57,7 +55,7 @@ void metodoSalottiOptimizado()
 	//Primera pasada usando como inicial el punto 1, para inicializar los óptimos
 	MetodoSalottiOptimizado *p;
 	Contorno actual(original);
-	p = new MetodoSalottiOptimizado(actual, numPuntosAprox+1, numPuntosAprox+1);
+	p = new MetodoSalottiOptimizado(actual, numPuntosAprox, numPuntosAprox);
 	p->aplicar();
 
 	//Vector para guardar el error optimo del contorno óptimo definitivo
@@ -100,6 +98,7 @@ void metodoSalottiOptimizado()
 	for (int i = 0; i <= numPuntosAprox; i++)
 		frecuenciaOptimo[i] = 0;
 
+/*
 	//Realizamos las siguientes pasadas cambiando el punto inicial
 	for(int i = 2; i < numeroPuntosContorno ; i++) //Considera todos los puntos como iniciales.
 	{
@@ -177,4 +176,5 @@ void metodoSalottiOptimizado()
 		cout << "La solucion optima para " << numeroPuntosAproximacion[i] << " puntos se repite " << frecuenciaOptimo[i+numPuntosAprox];
 		cout << " veces " << "p. inicial óptimo es " << inicialesOptimos[i] << ". Error optimo = " << erroresOptimos[i] << endl;
 	}
+	*/
 }

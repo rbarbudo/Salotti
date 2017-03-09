@@ -65,11 +65,8 @@ MetodoSalottiOptimizado::~MetodoSalottiOptimizado()
 void MetodoSalottiOptimizado::aplicar()
 {
 	/* Variables para el numero de puntos del contorno y el numero a optimizar*/
-	int numeroPuntosContorno = contorno().numeroPuntosContorno();
+	int numeroPuntosContorno = contorno().numeroPuntosContorno();	// incluye el primero dos veces
 	Contorno contornoOptimo, contornoPuntosDominantes;
-
-	/*Variables para guardar los errores */
-	double error, errorMaximo, sumaErroresCuadrado;
 
 	/* Matrices de los sumatorios */
 	Matriz<double> suma_x(numeroPuntosContorno , numeroPuntosContorno );
@@ -81,13 +78,13 @@ void MetodoSalottiOptimizado::aplicar()
 	/* Ahora vamos a calcular los sumatorios */
 	calcularSumatorios(suma_x, suma_y, suma_xx, suma_yy, suma_xy);
 
-	/*
-	//Inicializa el vector de frecuencias de los dominantes.
-	for(int i = 0; i <= numeroPuntosContorno; i++)
-		_frecuenciaDominantes.push_back (0);
-	//Matriz para ver los puntos dominantes en las sucesivas iteraciones
-	Matriz <int> matrizPuntosDominantes(_final, numeroPuntosContorno);
-	*/
+	cout << "1-3: " << sumaErrores(1,3,suma_x, suma_y, suma_xx, suma_yy, suma_xy) << endl;
+	cout << "2-4: " << sumaErrores(2,4,suma_x, suma_y, suma_xx, suma_yy, suma_xy) << endl;
+	cout << "4-5: " << sumaErrores(4,5,suma_x, suma_y, suma_xx, suma_yy, suma_xy) << endl;
+	cout << "4-6: " << sumaErrores(4,6,suma_x, suma_y, suma_xx, suma_yy, suma_xy) << endl;
+	cout << "3-4: " << sumaErrores(3,4,suma_x, suma_y, suma_xx, suma_yy, suma_xy) << endl;
+	//exit(0);
+
 
 	//Estas matrices que se declaran a continuación facilitarán las búsquedas, aunque no son estrictamente necesarias.
 	//El primer índice indica número de nodo y el segundo indica rango.
@@ -101,20 +98,6 @@ void MetodoSalottiOptimizado::aplicar()
 	//Matriz para saber la posición de cada nodo con su rango en el heap
 	int **posicionNodo = NULL;
 
-	//Valor para la poda.
-	//Se usará una variable estática que contendrá el mínimo valor encontrado hasta ese momento.
-	//static double limitePoda = 1000000000.0; //Se inicializa a valor infinito para que no pode la primera vez
-
-	//Contador para ver las podas porque la solucion no es viable ya que no mejora a la mejor solución del momento.
-	static int podadosPrematuros = 0;
-
-	//variable para ver el punto inicial que se está tratando.
-	//static int puntoInicial = 0;
-
-	//puntoInicial++;
-
-	//cout << "\n Punto Inicial = " << puntoInicial << endl;
-
 	padreActual = new int * [numeroPuntosContorno + 1];
 	for(int i = 0; i <= numeroPuntosContorno; i++)
 		padreActual[i] = new int [_final + 1];
@@ -123,60 +106,45 @@ void MetodoSalottiOptimizado::aplicar()
 	for(int i = 0; i <= numeroPuntosContorno; i++)
 		posicionNodo[i] = new int [_final + 1];
 
-	int contadorPodados;
-	int contadorTotalPodados = 0;
-	int contadorEstados = 0;
-	double tiempoTotal = 0;
-
-	//_contornosOptimos = new int [_final - _inicial + 1];
-
 	//Iteraciones para ir obteniendo los contornos optimos para los distintos números de puntos
 	//Se obtiene el óptimo de k puntos.
-	for(int k = _inicial; k <= _final; k++)
+	for(int k = _inicial; k <= _final; k++)	// Este bucle solo se ejecuta una vez ya que _inicial es igual a _final
 	{
 		//Estructuras necesarias para el A*
 		list <Nodo> listaCerrada; //Lista que albergará los nodos ya seleccionados
 		HeapVector listaAbierta; //heap que albergará los nodos candidatos
 
-		contadorPodados = 0;
 		//Todas las iteraciones utilizan la misma matriz, pero en cada iteración el trozo de matriz usado aumenta en una columna
 		//Inicialización de los trozos de matriz que se usan en cada iteración.
 		costeActual[1][0] = 0.0;
-		for(int i = 0; i <= numeroPuntosContorno; i++)
-			for(int j = 0; j <= k; j++)
+		for(int i = 0; i <= numeroPuntosContorno; i++) {	// creo que hay uno mas (<=) porque el 0 es el nodo padre del primero (ficticio)
+			for(int j = 0; j <= k; j++)	// es el rango pero duda: no se porque hay un elementos mas
 			{
 				costeActual[i][j] = 0.0;
 				padreActual[i][j] = -1;
 				cerrada[i][j] = false;
 				abierta[i][j] = false;
-				posicionNodo[i][j] = 0;
+				posicionNodo[i][j] = 0;	// duda: ¿es necesario que lo actualice manualmente?
 			}
-
-		//Nodo minimo; //Nodo para almacenar el minimo en cada momento de la lista abierta
+		}
 
 		//COMIENZA EL ALGORITMO A*
-			// TODO
-				// preguntar y corregir costes
-				double costeFake = 0.0;
-				// usar padreActual tb
-				// revisar los true en los condicionales y en los bucles
-
 
 		// inicializamos la matriz donde se almacenaran los puntos de la aproximación
-		//_contornosOptimos[k-_inicial] = new int[k];
-
-		// obtenemos el contorno y el primer punto
+		_contornosOptimos = Matriz<int>(_final - _inicial + 1, k+1); // duda: no se si los tamaños puestos pueden dar error
+		// obtenemos el contorno
 		Contorno contorno = this->contorno();
-		Punto p = contorno.puntoContorno(0);
 
 		/*
 		 * 1) Put the start node s corresponding to the "first point
 		 * of the curve in the Open list and set g(s)=0.
 		 */
-		Nodo inicial(p,1,0,0,0.0);	// el indice empieza en 1 para indicar mediante el padre 0 que es el primero
+		Punto p = contorno.puntoContorno(1);
+		Nodo inicial(p,1,0,0,0.0);
 		listaAbierta.insertar(inicial, posicionNodo);
-		abierta[0][0] = true;
-		costeActual[0][0] = costeFake;
+		abierta[1][0] = true;
+		costeActual[1][0] = 0.0;
+		padreActual[1][0] = 0;
 
 		while(true) {
 			/**
@@ -187,15 +155,12 @@ void MetodoSalottiOptimizado::aplicar()
 			// añadimos el minimo a la lista cerrada
 			Nodo minimo = listaAbierta.minimo();
 			listaCerrada.push_back(minimo);
-			listaAbierta.borrarHeap();
-			abierta[minimo.getIndice()-1][minimo.getRango()] = false;
-			cerrada[minimo.getIndice()-1][minimo.getRango()] = true;
-			costeActual[minimo.getIndice()-1][minimo.getRango()] = costeFake;
-
-			// obtenemos info del ultimo añadido a la lista cerrada
-			int rangoLast = listaCerrada.back().getRango();
-			int indiceLast = listaCerrada.back().getIndice();
-			double costeLast = listaCerrada.back().getCoste();
+			listaAbierta.borrarMinimo(posicionNodo);
+			abierta[minimo.getIndice()][minimo.getRango()] = false;
+			cerrada[minimo.getIndice()][minimo.getRango()] = true;
+			padreActual[minimo.getIndice()][minimo.getRango()] = minimo.getPadre();
+			costeActual[minimo.getIndice()][minimo.getRango()] = minimo.getCoste();
+			//cout << "HOLI:" <<  minimo.getCoste() << endl;
 
 			/*
 			 * 3) If n is the last point of the curve and the global error
@@ -203,10 +168,18 @@ void MetodoSalottiOptimizado::aplicar()
 			 * solution of the polygonal approximation obtained by
 			 * tracing back through the pointers.
 			 */
-			if(listaCerrada.back().getIndice() < numeroPuntosContorno && true) {
-				//_contornosOptimos[k-_inicial][k-1] = listaCerrada.back().getIndice();
-				for(int i=k-2; i>=0; i++)
-					//_contornosOptimos[k-_inicial][i] = padreActual[_contornosOptimos[k-_inicial][i+1]][i]; // i es el rango (no se si seria "i-1")
+
+			//cout << " indice minimo: " << minimo.getIndice() << endl;
+			if((minimo.getRango() == k)) { // el indice del ultimo elemento de la lista es el ultimo punto del contorno que es el primero	// duda: no entiendo lo del maxglobal error  // duda: numero de puntos de contorno -1
+				//cout << "ENTRO" << endl;
+				_contornosOptimos.elemento(1,k,minimo.getIndice());
+				cout << "añadido: " << minimo.getIndice() << endl;
+				for(int i=k-1; i>=0; i--) {
+					_contornosOptimos.elemento(1, i, padreActual[_contornosOptimos.elemento(1,i+1)][i+1]); // i es el rango (no se si seria "i" en padre actual)
+					cout << "añadido: " << padreActual[_contornosOptimos.elemento(1,i+1)][i+1] << endl;
+				}
+				_error.push_back(minimo.getCoste());
+				cout << "coste final: " << minimo.getCoste() << endl;
 				return;
 			}
 
@@ -214,8 +187,16 @@ void MetodoSalottiOptimizado::aplicar()
 			 * 4) Expand node n, generating all of its successors. Then,
 			 * for each successor n'
 			 */
-			for(int i=indiceLast+1; i<numeroPuntosContorno; i++) {	// indiceLast+1: tomo los puntos a partir del siguiente
-				Nodo sucesor(contorno.puntoContorno(i), i, rangoLast+1, indiceLast, costeFake);
+			for(int i=minimo.getIndice()+1; (i<=numeroPuntosContorno-(k-minimo.getRango())+1); i++) {	// minimo.getIndice()+1: tomo los puntos a partir del siguiente
+
+
+				cout << "minimo: " << minimo.getIndice() << endl;
+				cout << "i: " << i << endl;
+
+				double costeAdicional = sumaErrores(minimo.getIndice(), i, suma_x, suma_y, suma_xx, suma_yy, suma_xy);
+				//cout << "coste adicional: " << costeAdicional << endl;
+				Nodo sucesor(contorno.puntoContorno(i), i, minimo.getRango()+1, minimo.getIndice(), minimo.getCoste()+costeAdicional);
+
 				/**
 				 * 5) If it is not already in the Open list, set g(n')...,
 				 * set f(n')..., insert the new node in the Open list at the right
@@ -225,6 +206,8 @@ void MetodoSalottiOptimizado::aplicar()
 				if (!abierta[sucesor.getIndice()][sucesor.getRango()]) {
 					listaAbierta.insertar(sucesor, posicionNodo);
 					abierta[sucesor.getIndice()][sucesor.getRango()] = true;
+					costeActual[sucesor.getIndice()][sucesor.getRango()] = sucesor.getCoste();
+					padreActual[sucesor.getIndice()][sucesor.getRango()] = sucesor.getPadre();
 				}
 				/*
 				 * 6) Else the successor n was already in the Open list,
@@ -234,20 +217,19 @@ void MetodoSalottiOptimizado::aplicar()
 				 */
 				else {
 					// miramos si el coste es menor ahora y segun ello actualizamos
-					if(sucesor.getCoste() < costeActual[sucesor.getIndice()-1][sucesor.getRango()]) {
-						//listaAbierta.actualizar( ,sucesor);
+					if(sucesor.getCoste() < costeActual[sucesor.getIndice()][sucesor.getRango()]) {
+						listaAbierta.actualizar(sucesor,sucesor,posicionNodo);
+						costeActual[sucesor.getIndice()][sucesor.getRango()] = sucesor.getCoste();
+						padreActual[sucesor.getIndice()][sucesor.getRango()] = sucesor.getPadre();
 					}
 				}
-
-				// comprobamos si salimos del bucle para controlar que el numero de puntos no sea inferior a k
-				if(rangoLast+numeroPuntosContorno-i < k-1) // es k-1 porque el rango empieza en 0
-					break;
 			}
 			/*
 			 * Go to 2)
 			 */
 		}
 	}
+
 }
 
 void MetodoSalottiOptimizado::calcularSumatorios(Matriz <double> &suma_x, Matriz <double> &suma_y, Matriz <double> &suma_xx, Matriz <double> &suma_yy, Matriz <double> &suma_xy)
@@ -445,91 +427,6 @@ double MetodoSalottiOptimizado::sumaErrores(const int &inicio, const int &fin, c
 }
 
 
-double MetodoSalottiOptimizado::sumaErrores1(const int &inicio, const int &fin, const Matriz <double> &suma_x, 
-		const Matriz <double> &suma_y, const Matriz <double> &suma_xx, const Matriz <double> &suma_yy,
-		const Matriz <double> &suma_xy)
-{
-	/*Esta funcion calcula la suma de los errores de la regresión de y sobre x */
-
-	double sumaErroresCuadrado = 0.0;
-	double a, b; //Coeficientes de la recta en forma explícita. y = a + bx
-
-
-	if (inicio == fin)
-		return 0.0;
-	if (inicio == fin - 1)
-		return 0.0;
-	//printf("Inicio = %d, Fin = %d", inicio, fin);
-
-	//Calculamos los coeficientes b y a a partir de los sumatorios 
-	double numeradorB, denominadorB;
-	int numeroPuntos = fin - inicio - 1;
-
-	numeradorB = suma_x.elemento(inicio, fin) * suma_y.elemento(inicio, fin) - 
-			numeroPuntos * suma_xy.elemento(inicio, fin);
-	denominadorB = suma_x.elemento(inicio, fin) * suma_x.elemento(inicio, fin) - 
-			numeroPuntos * suma_xx.elemento(inicio, fin);
-
-	//Si todos los valores de x son iguales b es infinito y el error es 0
-	if (fabs(denominadorB) < 0.0000001)
-		return 0.0;
-
-	b = numeradorB / denominadorB;
-	a = (suma_y.elemento(inicio, fin) / numeroPuntos) - (b * suma_x.elemento(inicio, fin) / numeroPuntos);
-
-	sumaErroresCuadrado = numeroPuntos * a * a + suma_yy.elemento(inicio, fin) + b * b * suma_xx.elemento(inicio, fin) 
-															- 2.0 * a * suma_y.elemento(inicio, fin) - 2.0 * b * suma_xy.elemento(inicio, fin) + 2.0 * a * b * suma_x.elemento(inicio, fin);
-	/*
-
-	//Ahora se calculan los errores punto a punto en la dirección y
-	for (int i = inicio; i <= fin ; i++)
-		sumaErroresCuadrado += (contorno().puntoContorno(i).y() - (a + b * contorno().puntoContorno(i).x())) * 
-                           (contorno().puntoContorno(i).y() - (a + b * contorno().puntoContorno(i).x()));
-	 */
-
-	return sumaErroresCuadrado;
-}
-
-double MetodoSalottiOptimizado::sumaErrores2(const int &inicio, const int &fin, const Matriz <double> &suma_x, 
-		const Matriz <double> &suma_y, const Matriz <double> &suma_xx, const Matriz <double> &suma_yy,
-		const Matriz <double> &suma_xy)
-{
-	/*Esta funcion calcula la suma de los errores de la regresión de x sobre y */
-
-	double sumaErroresCuadrado = 0.0;
-	double a, b; //Coeficientes de la recta en forma explícita. x = a + by
-
-	if (inicio == fin)
-		return 0.0;
-	if (inicio == fin - 1)
-		return 0.0;
-	//printf("Inicio = %d, Fin = %d", inicio, fin);
-
-	//Calculamos los coeficientes b y a a partir de los sumatorios 
-	double numeradorB, denominadorB;
-	int numeroPuntos = fin - inicio - 1;
-
-	numeradorB = suma_y.elemento(inicio, fin) * suma_x.elemento(inicio, fin) - 
-			numeroPuntos * suma_xy.elemento(inicio, fin);
-	denominadorB = suma_y.elemento(inicio, fin) * suma_y.elemento(inicio, fin) - 
-			numeroPuntos * suma_yy.elemento(inicio, fin);
-
-	//Si todos los valores de y son iguales b es infinito y el error es 0
-	if (fabs(denominadorB) < 0.0000001)
-		return 0.0;
-
-	b = numeradorB / denominadorB;
-	a = (suma_x.elemento(inicio, fin) / numeroPuntos) - (b * suma_y.elemento(inicio, fin) / numeroPuntos);
-
-	//Ahora se calculan los errores punto a punto en la dirección y
-	/*for (int i = inicio; i <= fin ; i++)
-		sumaErroresCuadrado += (contorno().puntoContorno(i).x() - (a + b * contorno().puntoContorno(i).y())) * 
-                           (contorno().puntoContorno(i).x() - (a + b * contorno().puntoContorno(i).y()));*/
-
-	sumaErroresCuadrado = numeroPuntos * a * a + suma_xx.elemento(inicio, fin) + b * b * suma_yy.elemento(inicio, fin)
-															- 2.0 * a * suma_x.elemento(inicio, fin) - 2.0 * b * suma_xy.elemento(inicio, fin) + 2.0 * a * b * suma_y.elemento(inicio, fin);
-	return sumaErroresCuadrado;
-}
 
 void MetodoSalottiOptimizado::obtenerPuntosContornoOptimo(Contorno &contorno, int ** padre, const int & numeroPuntosProbados)
 {
