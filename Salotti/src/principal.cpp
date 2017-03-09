@@ -29,7 +29,7 @@ void metodoSalottiOptimizado()
 	// Carga de contorno
 
 	//char nombreFicheroContorno[100];
-	char nombreFicheroContorno[100] = "contornos/prueba.txt";
+	char nombreFicheroContorno[100] = "CONTORNOS/abre1Perez.txt";
 	//cout << "Introduzca el fichero de contorno:";
 	//cin >> nombreFicheroContorno;
 
@@ -44,7 +44,7 @@ void metodoSalottiOptimizado()
 	// Numero de puntos de la aproximacion
 
 	//int numPuntosAprox;
-	int numPuntosAprox = 3;
+	int numPuntosAprox = 25;
 	//cout << "Número de puntos de la aproximacion contando dos veces el inicial:";
 	//cin >> numPuntosAprox;
 
@@ -63,6 +63,15 @@ void metodoSalottiOptimizado()
 	vector <double> erroresOptimos = p->vectorErrores();
 	//Matriz para guardar los contornos optimos definitivos
 	Matriz <int> contornosOptimos = p->matrizContornosOptimos();
+
+
+	// Mostramos los puntos de la solucion
+	cout << "Solucion: ";
+	for(int i=1; i<=numPuntosAprox; i++) {
+		cout << contornosOptimos.elemento(1,i) << " ";
+	}
+	cout << endl;
+
 	//Vector para guardar el numero de puntos de cada aproximación.
 	vector <int> numeroPuntosAproximacion = p->vectorNumeroPuntosAproximacion();
 
@@ -86,19 +95,18 @@ void metodoSalottiOptimizado()
 	//El indice coincide con el punto considerado. por ejemplo frecuenciaOptimo[7] = 5 indica que la solución optima para 
 	//7 puntos se repite 5 veces (hay cinco posibles puntos de comienzo con error optimo).
 
-	int frecuenciaOptimo[numPuntosAprox +1];
+	//int frecuenciaOptimo[numPuntosAprox +1];
 
 	//Comprobaciones
 	cout << "Punto inicial =  1 ->";
 	for (int i = numPuntosAprox; i <= numPuntosAprox; i++)
 		cout << " error = " << errores[i - numPuntosAprox] << " ";
 	cout << "\n";
-
+/*
 	//Inicializamos a 0 la frecuencia con la que aparece cada solución óptima
 	for (int i = 0; i <= numPuntosAprox; i++)
 		frecuenciaOptimo[i] = 0;
 
-/*
 	//Realizamos las siguientes pasadas cambiando el punto inicial
 	for(int i = 2; i < numeroPuntosContorno ; i++) //Considera todos los puntos como iniciales.
 	{

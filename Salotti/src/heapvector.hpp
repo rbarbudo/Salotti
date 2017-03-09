@@ -126,6 +126,17 @@ public:
 		return _nElementos == 0;
 	}
 
+	int len() const {
+		return _nElementos;
+	}
+
+	void imprimir() {
+		for(int i=1; i<=_nElementos; i++) {
+			std::cout << i << ") " <<  _h[i].getIndice() << ", " << _h[i].getCoste() << ", " << _h[i].getRango() << ", " << _h[i].getPadre() << endl;
+		}
+	}
+
+
 
 private:
 	vector <Nodo> _h;
@@ -178,6 +189,9 @@ private:
 			hundir(minimoHijo, posicionNodo);
 		}
 	}
+
+
+
 };
 
 #endif
