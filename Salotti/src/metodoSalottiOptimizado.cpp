@@ -150,7 +150,7 @@ void MetodoSalottiOptimizado::aplicar()
 			cerrada[minimo.getIndice()][minimo.getRango()] = true;
 			padreActual[minimo.getIndice()][minimo.getRango()] = minimo.getPadre();
 			costeActual[minimo.getIndice()][minimo.getRango()] = minimo.getCoste();
-			cout << "añado a cerrada: " <<  minimo.getIndice() << ", " << minimo.getCoste() << ", " << minimo.getRango() << ", " << minimo.getPadre() << endl;
+			//cout << "añado a cerrada: " <<  minimo.getIndice() << ", " << minimo.getCoste() << ", " << minimo.getRango() << ", " << minimo.getPadre() << endl;
 
 			/*
 			 * 3) If n is the last point of the curve and the global error
@@ -172,51 +172,49 @@ void MetodoSalottiOptimizado::aplicar()
 			 * 4) Expand node n, generating all of its successors. Then,
 			 * for each successor n'
 			 */
-			//cout << "padre: " << minimo.getIndice() << ", " << minimo.getRango() << ", " << minimo.getCoste() << endl;
 			for(int i=minimo.getIndice()+1; i<=numeroPuntosContorno-(k-1-(minimo.getRango()+1)); i++) {
-
-				if((minimo.getRango()+1 == k-1) && i<numeroPuntosContorno ) {
-					cout << "";
-				}
-				else {
-
-					double costeAdicional = sumaErrores(minimo.getIndice(), i, suma_x, suma_y, suma_xx, suma_yy, suma_xy);
-					Nodo sucesor(contorno.puntoContorno(i), i, minimo.getRango()+1, minimo.getIndice(), minimo.getCoste()+costeAdicional);
-					cout << "sucesor: " <<  sucesor.getIndice() << ", " << sucesor.getCoste() << ", " << sucesor.getRango() << ", " << sucesor.getPadre() << endl;
-					/**
-					 * 5) If it is not already in the Open list, set g(n')...,
-					 * set f(n')..., insert the new node in the Open list at the right
-					 * place (according to the value of f (n')), and direct a
-					 * pointer from it back to n.
-					 */
-					if (!abierta[sucesor.getIndice()][sucesor.getRango()]) {
-						listaAbierta.insertar(sucesor, posicionNodo);
-						abierta[sucesor.getIndice()][sucesor.getRango()] = true;
-						costeActual[sucesor.getIndice()][sucesor.getRango()] = sucesor.getCoste();
-						padreActual[sucesor.getIndice()][sucesor.getRango()] = sucesor.getPadre();
+				if (!cerrada[i][minimo.getRango()+1]) {
+					if((minimo.getRango()+1 == k-1) && i<numeroPuntosContorno ) {
+						cout << "";
 					}
-					/*
-					 * 6) Else the successor n was already in the Open list,
-					 * update its value, g(n')... and if necessary (if g(n') is modified),
-					 * redirect to n the pointer to the father, update f(n') and update
-					 * the place of the node in the Open list.
-					 */
 					else {
-						// miramos si el coste es menor ahora y segun ello actualizamos
-						if(sucesor.getCoste() < costeActual[sucesor.getIndice()][sucesor.getRango()]) {
-							listaAbierta.actualizar(sucesor,sucesor,posicionNodo);
+
+						double costeAdicional = sumaErrores(minimo.getIndice(), i, suma_x, suma_y, suma_xx, suma_yy, suma_xy);
+						Nodo sucesor(contorno.puntoContorno(i), i, minimo.getRango()+1, minimo.getIndice(), minimo.getCoste()+costeAdicional);
+
+						/**
+						 * 5) If it is not already in the Open list, set g(n')...,
+						 * set f(n')..., insert the new node in the Open list at the right
+						 * place (according to the value of f (n')), and direct a
+						 * pointer from it back to n.
+						 */
+						if (!abierta[sucesor.getIndice()][sucesor.getRango()]) {
+							listaAbierta.insertar(sucesor, posicionNodo);
+							abierta[sucesor.getIndice()][sucesor.getRango()] = true;
+							cerrada[sucesor.getIndice()][sucesor.getRango()] = false;
 							costeActual[sucesor.getIndice()][sucesor.getRango()] = sucesor.getCoste();
 							padreActual[sucesor.getIndice()][sucesor.getRango()] = sucesor.getPadre();
+						}
+						/*
+						 * 6) Else the successor n was already in the Open list,
+						 * update its value, g(n')... and if necessary (if g(n') is modified),
+						 * redirect to n the pointer to the father, update f(n') and update
+						 * the place of the node in the Open list.
+						 */
+						else {
+							// miramos si el coste es menor ahora y segun ello actualizamos
+							if(sucesor.getCoste() < costeActual[sucesor.getIndice()][sucesor.getRango()]) {
+								listaAbierta.actualizar(sucesor,sucesor,posicionNodo);
+								costeActual[sucesor.getIndice()][sucesor.getRango()] = sucesor.getCoste();
+								padreActual[sucesor.getIndice()][sucesor.getRango()] = sucesor.getPadre();
+							}
 						}
 					}
 				}
 
 			}
-
-			cout << "Lista abierta:" << endl;
-			listaAbierta.imprimir();
-
-
+			//cout << "Lista abierta:" << endl;
+			//listaAbierta.imprimir();
 
 			/*
 			 * Go to 2)
